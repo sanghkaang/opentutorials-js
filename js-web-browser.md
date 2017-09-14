@@ -289,7 +289,37 @@ HTML은 form을 통해서 사용자와 커뮤니케이션할 수 있는 기능�
 ```
 
 ## Location 객체
+
+Location 객체는 문서의 주소와 관련된 객체로 Window 객체의 프로퍼티다. 이 객체를 이용해서 윈도우의 문서 URL을 변경할 수 있고, 문서의 위치와 관련해서 다양한 정보를 얻을 수 있다.
+
+### 현재 윈도우의 URL 알아내기
+
+`console.log(location.toString(), location.href);`
+
+### URL Parsing
+
+location 객체는 URL을 의미에 따라서 별도의 프로퍼티로 제공하고 있다. 
+
+`console.log(location.protocol, location.host, location.port, location.pathname, location.search, location.hash)`
+
+### URL 변경하기
+
+아래 코드는 현재 문서를 http://egoing.net으로 이동한다.
+`location.href = 'http://egoing.net';`
+아래와 같은 방법도 같은 효과를 낸다.
+`location = 'http://egoing.net';`
+아래는 현재 문서를 리로드하는 간편한 방법을 제공한다.
+`location.reload();  //location.href=location.href 같은 효과`
+
 ## Navigator 객체
+
+### appName
+### appVersion
+### userAgent
+### platform
+### 기능테스트
+
+
 ## 창 제어
 # DOM
 ## 제어 대상을 찾기
