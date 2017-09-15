@@ -313,18 +313,363 @@ location 객체는 URL을 의미에 따라서 별도의 프로퍼티로 제공�
 
 ## Navigator 객체
 
+브라우저의 정보를 제공하는 객체다. 주로 호환성 문제등을 위해서 사용한다.
+`console.dir(navigator);` 명령을 통해서 이 객체의 모든 프로퍼티를 열람할 수 있다.
+
 ### appName
+
+웹브라우저의 이름이다. IE는 Microsoft Internet Explorer, 파이어폭스, 크롬등은 Nescape로 표시한다.
+
 ### appVersion
+
+브라우저의 버전을 의미한다.
+
 ### userAgent
+
+브라우저가 서버측으로 전송하는 USER-AGENT HTTP 헤더의 내용이다. appVersion과 비슷하다.
+
 ### platform
+
+브라우저가 동작하고 있는 운영체제에 대한 정보다.
+
 ### 기능테스트
 
+Navigator 객체는 브라우저 호환성을 위해서 주로 사용하지만 모든 브라우저에 대응하는 것은 쉬운 일이 아니므로 아래와 같이 기능 테스트를 사용하는 것이 더 선호되는 방법이다. 
+
+예를 들어 Object.keys라는 메소드는 객체의 key 값을 배열로 리턴하는 Object의 메소드다. 이 메소드는 ECMAScript5에 추가되었기 때문에 오래된 자바스크립트와는 호환되지 않는다. 아래의 코드를 통해서 호환성을 맞출 수 있다. 
+
+```js
+// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+if (!Object.keys) {
+  Object.keys = (function () {
+    'use strict';
+    var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+ 
+    return function (obj) {
+      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+        throw new TypeError('Object.keys called on non-object');
+      }
+ 
+      var result = [], prop, i;
+ 
+      for (prop in obj) {
+        if (hasOwnProperty.call(obj, prop)) {
+          result.push(prop);
+        }
+      }
+ 
+      if (hasDontEnumBug) {
+        for (i = 0; i < dontEnumsLength; i++) {
+          if (hasOwnProperty.call(obj, dontEnums[i])) {
+            result.push(dontEnums[i]);
+          }
+        }
+      }
+      return result;
+    };
+  }());
+}
+```
 
 ## 창 제어
+
+window.open 메소드는 새 창을 생성한다. 현대의 브라우저는 대부분 탭을 지원하기 때문에 window.open은 새 창을 만든다. 아래는 메소드의 사용법이다.
+
+```html
+<!DOCTYPE html>
+<html>
+<style>li {padding:10px; list-style: none}</style>
+<body>
+<ul>
+    <li>
+        첫번째 인자는 새 창에 로드할 문서의 URL이다. 인자를 생략하면 이름이 붙지 않은 새 창이 만들어진다.<br />
+        <input type="button" onclick="open1()" value="window.open('demo2.html');" />
+    </li>
+    <li>
+        두번째 인자는 새 창의 이름이다. _self는 스크립트가 실행되는 창을 의미한다.<br />
+        <input type="button" onclick="open2()" value="window.open('demo2.html', '_self');" />
+    </li>
+    <li>
+        _blank는 새 창을 의미한다. <br />
+        <input type="button" onclick="open3()" value="window.open('demo2.html', '_blank');" />
+    </li>
+    <li>
+        창에 이름을 붙일 수 있다. open을 재실행 했을 때 동일한 이름의 창이 있다면 그곳으로 문서가 로드된다.<br />
+        <input type="button" onclick="open4()" value="window.open('demo2.html', 'ot');" />
+    </li>
+    <li>
+        세번재 인자는 새 창의 모양과 관련된 속성이 온다.<br />
+        <input type="button" onclick="open5()" value="window.open('demo2.html', '_blank', 'width=200, height=200, resizable=yes');" />
+    </li>
+</ul>
+ 
+<script>
+function open1(){
+    window.open('demo2.html');
+}
+function open2(){
+    window.open('demo2.html', '_self');
+}
+function open3(){
+    window.open('demo2.html', '_blank');
+}
+function open4(){
+    window.open('demo2.html', 'ot');
+}
+function open5(){
+    window.open('demo2.html', '_blank', 'width=200, height=200, resizable=no');
+}
+</script>
+</body>
+</html>
+```
+
+### 새 창에 접근
+
+아래 예제는 보안상의 이유로 실제 서버에서만 동작하고, 같은 도메인의 창에 대해서만 작동한다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <input type="button" value="open" onclick="winopen();" />
+    <input type="text" onkeypress="winmessage(this.value)" />
+    <input type="button" value="close" onclick="winclose()" />
+    <script>
+    function winopen(){
+        win = window.open('demo2.html', 'ot', 'width=300px, height=500px');
+    }
+    function winmessage(msg){
+        win.document.getElementById('message').innerText=msg;
+    }
+    function winclose(){
+        win.close();
+    }
+    </script>
+</body>
+</html>
+```
+
+### 팝업 차단
+
+사용자의 인터렉션이 없이 창을 열려고 하면 팝업이 차단된다.
+대부분의 웹브라우저가 팝업을 차단한다.
+위의 예제는 버튼을 눌리는 인터렉션이 있는 경우이다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <script>
+    window.open('demo2.html');
+    </script>
+</body>
+</html>
+```
+
 # DOM
+
+Document Object Model로 웹페이지를 자바스크립트로 제어하기 위한 객체 모델을 의미한다. window 객체의 document 프로퍼티를 통해서 사용할 수 있다. *Window 객체가 창을 의미한다면 Document 객체는 윈도우에 로드된 문서를 의미한다고 할 수 있다.* DOM의 하위 수업에서는 문서를 제어하는 방법에 대한 내용을 다룬다. 
+
 ## 제어 대상을 찾기
+
+문서를 자바스크립트로 제어하려면 제어의 대상에 해당되는 객체를 찾는 것이 제일 먼저 할 일이다. 문서 내에서 객체를 찾는 방법은 document 객체의 메소드를 이용한다. 
+
+### document.getElementsByTagName
+
+getElementsByTagName은 인자로 전달된 태그명에 해당하는 객체들을 찾아서 그 리스트를 NodeList라는 유사 배열에 담아서 반환한다. NodeList는 배열은 아니지만 length와 배열접근연산자를 사용해서 엘리먼트를 조회할 수 있다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ul>
+<script>
+    var lis = document.getElementsByTagName('li');
+    for(var i=0; i < lis.length; i++){
+        lis[i].style.color='red';   
+    }
+</script>
+</body>
+</html>
+```
+
+만약 조회의 대상을 좁히려면 아래와 같이 특정 객체를 지정하면 된다. 이러한 원칙은 다른 메소드에도 적용된다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ul>
+<ol>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ol>
+<script>
+    var ul = document.getElementsByTagName('ul')[0];
+    var lis = ul.getElementsByTagName('li');
+    for(var i=0; lis.length; i++){
+        lis[i].style.color='red';   
+    }
+</script>
+</body>
+</html>
+```
+
+### document.getElementsByClassName
+
+class 속성의 값을 기준으로 객체를 조회할수도 있다
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li class="active">CSS</li>
+    <li class="active">JavaScript</li>
+</ul>
+<script>
+    var lis = document.getElementsByClassName('active');
+    for(var i=0; i < lis.length; i++){
+        lis[i].style.color='red';   
+    }
+</script>
+</body>
+</html>
+```
+
+### document.getElementById
+
+s가 안붙는다 하나의 값만 리턴
+id 값을 기준으로 객체를 조회한다. 성능면에서 가장 우수하다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li id="active">CSS</li>
+    <li>JavaScript</li>
+</ul>
+<script>
+    var li = document.getElementById('active');
+    li.style.color='red';
+</script>
+</body>
+</html>
+```
+
+### document.querySelector
+
+css 선택자의 문법을 이용해서 객체를 조회할수도 있다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ul>
+<ol>
+    <li>HTML</li>
+    <li class="active">CSS</li>
+    <li>JavaScript</li>
+</ol>
+ 
+<script>
+    var li = document.querySelector('li');
+    li.style.color='red';
+    var li = document.querySelector('.active');
+    li.style.color='blue';
+</script>
+</body>
+</html>
+```
+
+### document.querySelectorAll
+
+querySelector과 기본적인 동작방법은 같지만 모든 객체를 조회한다는 점이 다르다.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ul>
+<ol>
+    <li>HTML</li>
+    <li class="active">CSS</li>
+    <li>JavaScript</li>
+</ol>
+ 
+<script>
+    var lis = document.querySelectorAll('li');
+    for(var name in lis){
+        lis[name].style.color = 'blue';
+    }
+</script>
+</body>
+</html>
+```
+
 ## jQuery
+
+### 라이브러리
+
+자주 사용하는 로직을 재사용할 수 있도록 고안된 소프트웨어를 라이브러리라고 한다.
+
+### jQuery
+
+jQuery는 DOM을 내부에 감추고 보다 쉽게 웹페이지를 조작할 수 있도록 돕는 도구이다. jQuery의 효용은 후속 수업을 통해서 살펴보자.
+
+### jQuery의 사용
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script>
+    jQuery( document ).ready(function( $ ) {
+      $('body').prepend('<h1>Hello world</h1>');
+    });
+    </script>
+</body>
+</html>
+```
+
 ## 제어 대상을 찾기 (jQuery)
+
+### jQuery의 기본문법
+### jQuery 사용 예제
+
 ## HTMLElement
 ## HTMLCollection
 ## jQuery 객체
