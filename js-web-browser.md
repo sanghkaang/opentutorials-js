@@ -667,16 +667,394 @@ jQuery는 DOM을 내부에 감추고 보다 쉽게 웹페이지를 조작할 수
 
 ## 제어 대상을 찾기 (jQuery)
 
+jQuery를 이용하면 DOM을 사용하는 것 보다 훨씬 효율적으로 필요한 객체를 조회할 수 있다. jQuery는 객체를 조회할 때 CSS 선택자를 이용한다.
+
 ### jQuery의 기본문법
+
+`$('li').css('color', 'red');`
+$()는 jQuery의 함수이다. 이 함수의 인자로 CSS 선택자(li)를 전달하면 jQuery 객체라는 것을 리턴한다. 이 객체는 선택자에 해당하는 엘리먼트를 제어하는 다양한 메소드를 가지고 있다. 위의 그림에서 css는 선택자에 해당하는 객체들의 style에 color:red로 변경한다.
+
 ### jQuery 사용 예제
 
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    #demo{width:200px;float: left; margin-top:120px;}
+    #execute{float: left; margin:0; font-size:0.9em;}
+    #execute{padding-left: 5px}
+    #execute li{list-style: none}
+    #execute pre{border:1px solid gray; padding:10px;}
+    </style>
+</head>
+<body>
+<ul id="demo">
+    <li class="active">HTML</li>
+    <li id="active">CSS</li>
+    <li class="active">JavaScript</li>
+</ul>
+<ul id="execute">
+    <li>
+        <pre>
+var lis = document.getElementsByTagName('li');
+for(var i=0; i&lt;lis.length; i++){
+    lis[i].style.color='red';   
+</pre>
+        <pre>
+$('li').css('color', 'red')     </pre>
+        <input type="button" value="execute" onclick="$('li').css('color', 'red')" />
+    </li>
+    <li>
+        <pre>
+var lis = document.getElementsByClassName('active');
+for(var i=0; i &lt; lis.length; i++){
+    lis[i].style.color='red';   
+}</pre>
+        <pre>
+$('.active').css('color', 'red')</pre>
+        <input type="button" value="execute" onclick="$('.active').css('color', 'red')" />
+    </li>
+    <li>
+        <pre>
+var li = document.getElementById('active');
+li.style.color='red';
+li.style.textDecoration='underline';</pre>
+        <pre>
+$('$active').css('color', 'red').css('textDecoration', 'underline');
+        </pre>
+        <input type="button" value="execute" onclick="$('#active').css('color', 'red').css('textDecoration', 'underline')" />
+    </li>
+</ul>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+</body>
+</html>
+```
+
 ## HTMLElement
+
+### HTMLElement
+
+getElement* 메소드를 통해서 원하는 객체를 조회했다면 이 객체들을 대상으로 구체적인 작업을 처리해야 한다. 이를 위해서는 획득한 객체가 무엇인지 알아야 한다. 그래야 적절한 메소드나 프로퍼티를 사용할 수 있다.
+
+아래 코드는 getElement*의 리턴 값을 보여준다. 
+
+```html
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li id="active">JavaScript</li>
+</ul>
+<script>
+    var li = document.getElementById('active');
+    console.log(li.constructor.name);
+    var lis = document.getElementsByTagName('li');
+    console.log(lis.constructor.name);
+</script>
+
+<!-- 실행결과
+HTMLLIElement 
+HTMLCollection -->
+```
+이것을 통해서 알 수 있는 것은 아래와 같다.
+- document.getElementById : 리턴 데이터 타입은 HTMLLIELement
+- document.getElementsByTagName : 리턴 데이터 타입은 HTMLCollection
+- 즉 실행결과가 하나인 경우 HTMLLIELement, 복수인 경우 HTMLCollection을 리턴하고 있다. 
+- 엘리먼트의 종류에 따라서 리턴되는 객체가 조금씩 다르다
+- 엘리먼트 객체에 따라서 프로퍼티가 다르다는 것을 알 수 있다. 하지만 모든 엘리먼트들은 HTMLElement를 상속 받고 있다. 
+    > interface HTMLLIElement : HTMLElement {
+    > interface HTMLAnchorElement : HTMLElement {
+
+### DOM Tree
+
+모든 엘리먼트는 HTMLElement의 자식이다. 따라서 HTMLElement의 프로퍼티를 똑같이 가지고 있다. 동시에 엘리먼트의 성격에 따라서 자신만의 프로퍼티를 가지고 있는데 이것은 엘리먼트의 성격에 따라서 달라진다. HTMLElement는 Element의 자식이고 Element는 Node의 자식이다. Node는 Object의 자식이다. 이러한 관계를 DOM Tree라고 한다.
+
+![](https://s3.ap-northeast-2.amazonaws.com/opentutorials-user-file/module/904/2234.png)
+
 ## HTMLCollection
+
+HTMLCollection은 리턴 결과가 복수인 경우에 사용하게 되는 객체다. 유사배열로 배열과 비슷한 사용방법을 가지고 있지만 배열은 아니다. 
+HTMLCollection의 목록은 실시간으로 변경된다. 아래 코드를 보자.
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li id="active">JavaScript</li>
+</ul>
+<script>
+console.group('before');
+var lis = document.getElementsByTagName('li');
+for(var i = 0; i < lis.length; i++){
+    console.log(lis[i]);
+}
+console.groupEnd();
+console.group('after');
+lis[1].parentNode.removeChild(lis[1]);
+for(var i = 0; i < lis.length; i++){
+    console.log(lis[i]);
+}
+console.groupEnd();
+</script>
+</body>
+</html>
+```
+
 ## jQuery 객체
+
+### jQuery 객체란?
+
+jQuery 함수의 리턴값으로 jQuery 함수를 이용해서 선택한 엘리먼트들에 대해서 처리할 작업을 프로퍼티로 가지고 있는 객체다.
+
+### 암시적 반복
+
+jQuery 객체의 가장 중요한 특성은 암시적인 반복을 수행한다는 것이다. DOM과 다르게 jQuery 객체의 메소드를 실행하면 선택된 엘리먼트 전체에 대해서 동시에 작업이 처리된다.
+
+암시적 반복은 값을 설정할 때만 동작한다. 값을 가져올 때는 선택된 엘리먼트 중 첫번째에 대한 값만을 반환한다. 이에 대한 내용은 아래에서 살펴본다.
+
+### 체이닝
+
+chainig이란 선택된 엘리먼트에 대해서 연속적으로 작업을 처리할 수 있는 방법이다. 
+
+### 조회결과
+
+jQuery 객체에는 조회된 엘리먼트가 담겨 있다. jQuery 객체는 일종의 유사배열의 형태로 조회된 엘리먼트를 가지고 있기 때문에 배열처럼 사용해서 엘리먼트를 가져올 수 있다.
+
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li>JavaScript</li>
+</ul>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    console.log($('li').length);
+    console.log($('li')[0]);
+    var li = $('li');
+    for(var i=0; i<li.length; i++){
+        console.log(li[i]);
+    }
+</script>
+```
+
+한가지 주의할 것은 li[i]의 값은 해당 엘리먼트에 대한 jQuery 객체가 아니라 DOM 객체라는 것이다. 따라서 jQuery의 기능을 이용해서 이 객체를 제어하려면 jQuery 함수를 이용해야 한다. 
+
+```js
+for(var i=0; i<li.length; i++){
+    $(li[i]).css('color', 'red');
+}
+```
+> li[i] 는 jQuery객체가 아니라 DOM객체라 .css메소드가 안먹음
+
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li>JavaScript</li>
+</ul>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    var li = $('li');
+    li.map(function(index, elem){
+        console.log(index, elem);
+        $(elem).css('color', 'red');
+    })
+</script>
+```
+
+map은 jQuery 객체의 엘리먼트를 하나씩 순회한다. 이 때 첫번째 인자로 전달된 함수가 호출되는데 첫번째 인자로 엘리먼트의 인덱스, 두번째 인자로 엘리먼트 객체(DOM)이 전달된다.
+
+### jQuery 객체 API
+
+.css와 .attr은 jQuery 객체가 가지고 있는 메소드 중의 하나인데, jQuery는 그 외에도 많은 API를 제공하고 있다. 이에 대한 내용은 jQuery API를 참고하자. https://api.jquery.com
+
 ## Element 객체
+
+Element 객체는 엘리먼트를 추상화한 객체다. HTMLElement 객체와의 관계를 이해하기 위해서는 DOM의 취지에 대한 이해가 선행되야 한다. DOM은 HTML만을 제어하기 위한 모델이 아니다. HTML이나 XML, SVG, XUL과 같이 마크업 형태의 언어를 제어하기 위한 규격이기 때문에 Element는 마크업 언어의 일반적인 규격에 대한 속성을 정의하고 있고, 각각의 구체적인 언어(HTML,XML,SVG)를 위한 기능은 HTMLElement, SVGElement, XULElement와 같은 객체를 통해서 추가해서 사용하고 있다.
+
+DOM의 계층구조에서 Element 객체의 위치는 아래와 같다.
+![](https://s3.ap-northeast-2.amazonaws.com/opentutorials-user-file/module/904/2240.png)
+
+주요기능
+*식별자*
+문서내에서 특정한 엘리먼트를 식별하기 위한 용도로 사용되는 API
+- Element.classList
+- Element.className
+- Element.id
+- Element.tagName
+
+*조회*
+엘리먼트의 하위 엘리먼트를 조회하는 API
+- Element.getElementsByClassName
+- Element.getElementsByTagName
+- Element.querySelector
+- Element.querySelectorAll
+
+*속성*
+엘리먼트의 속성을 알아내고 변경하는 API
+- Element.getAttribute(name)
+- Element.setAttribute(name, value)
+- Element.hasAttribute(name);
+- Element.removeAttribute(name);
+
 ### 식별자 API
+
+엘리먼트를 제어하기 위해서는 그 엘리먼트를 조회하기 위한 식별자가 필요하다. 본 수업에서는 식별자 API들에 대해서 알아보자.
+
+HTML에서 엘리먼트의 이름과 id 그리고 class는 식별자로 사용된다. 식별자 API는 이 식별자를 가져오고 변경하는 역할을 한다.
+
+#### Element.tagName
+
+해당 엘리먼트의 태그 이름을 알아낸다. 태그 이름을 변경하지는 못한다.(읽기전용이라는 뜻)
+
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li id="active" class="important current">JavaScript</li>
+</ul>
+<script>
+console.log(document.getElementById('active').tagName)
+</script>
+```
+
+#### Element.id
+
+문서에서 id는 단 하나만 등장할 수 있는 식별자다. 아래 예제는 id의 값을 읽고 변경하는 방법을 보여준다. 
+
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li id="active">JavaScript</li>
+</ul>
+<script>
+var active = document.getElementById('active');
+console.log(active.id);
+active.id = 'deactive';
+console.log(active.id);
+</script>
+```
+
+#### Element.className
+
+클래스는 여러개의 엘리먼트를 그룹핑할 때 사용한다.
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li id="active">JavaScript</li>
+</ul>
+<script>
+var active = document.getElementById('active');
+// class 값을 변경할 때는 프로퍼티의 이름으로 className을 사용한다.
+active.className = "important current";
+console.log(active.className);
+// 클래스를 추가할 때는 아래와 같이 문자열의 더한다.
+active.className += " readed"
+</script>
+```
+
+#### Element.classList
+
+className에 비해서 훨씬 편리한 사용성을 제공한다.
+```html
+<ul>
+    <li>html</li>
+    <li>css</li>
+    <li id="active" class="important current">JavaScript</li>
+</ul>
+<script>
+function loop(){
+    for(var i=0; i<active.classList.length; i++){
+        console.log(i, active.classList[i]);
+    }
+}
+// 클래스를 추가
+</script>
+<input type="button" value="DOMTokenList" onclick="console.log(active.classList);" />
+<input type="button" value="조회" onclick="loop();" />
+<input type="button" value="추가" onclick="active.classList.add('marked');" />
+<input type="button" value="제거" onclick="active.classList.remove('important');" />
+<input type="button" value="토글" onclick="active.classList.toggle('current');" />
+```
+
 ### 조회 API
+
+조회 API는 엘리먼트를 조회하는 기능이다. 조회 방법에 대해서는 이미 여러차례 살펴봤기 때문에 이번 시간에 알아볼 내용은 조회 대상을 제한하는 방법에 대한 것이다. 
+
+지금까지 document.getElementsBy* 메소드를 통해서 엘리먼트를 조회했다. document 객체는 문서 전체를 의미하는 엘리먼트이기 때문에 document의 조회 메소드는 문서 전체를 대상으로 엘리먼트를 조회한다. Element 객체 역시도 getElementsBy* 엘리먼트를 가지고 있는데 Element 객체의 조회 메소드는 해당 엘리먼트의 하위 엘리먼트를 대상으로 조회를 수행한다. 
+
+```html
+<ul>
+    <li class="marked">html</li>
+    <li>css</li>
+    <li id="active">JavaScript
+        <ul>
+            <li>JavaScript Core</li>
+            <li class="marked">DOM</li>
+            <li class="marked">BOM</li>
+        </ul>
+    </li>
+</ul>
+<script>
+    var list = document.getElementsByClassName('marked');
+    console.group('document');
+    for(var i=0; i<list.length; i++){
+        console.log(list[i].textContent);
+    }
+    console.groupEnd();
+     
+    console.group('active');
+    var active = document.getElementById('active');     
+    var list = active.getElementsByClassName('marked');
+    for(var i=0; i<list.length; i++){
+        console.log(list[i].textContent);
+    }
+    console.groupEnd();
+</script>
+```
+
 ### 속성 API
+
+속성을 제어하는 API는 아래와 같다. 각각의 기능은 이름을 통해서 충분히 유추할 수 있을 것이다.
+- Element.getAttribute(name)
+- Element.setAttribute(name, value)
+- Element.hasAttribute(name);
+- Element.removeAttribute(name);
+
+```html
+<a id="target" href="http://opentutorials.org">opentutorials</a>
+<script>
+var t = document.getElementById('target');
+console.log(t.getAttribute('href')); //http://opentutorials.org
+t.setAttribute('title', 'opentutorials.org'); // title 속성의 값을 설정한다.
+console.log(t.hasAttribute('title')); // true, title 속성의 존재여부를 확인한다.
+t.removeAttribute('title'); // title 속성을 제거한다.
+console.log(t.hasAttribute('title')); // false, title 속성의 존재여부를 확인한다.
+</script>
+```
+
+#### 속성과 프로퍼티
+
+모든 엘리먼트의 (HTML)속성은 (JavaScript 객체의) 속성과 프로퍼티로 제어가 가능하다. 예제를 보자
+
+```html
+<p id="target">
+    Hello world
+</p>
+<script>
+    var target = document.getElementById('target');
+    // attribute 방식
+    target.setAttribute('class', 'important');
+    // property 방식
+    target.className = 'important';
+</script>
+```
+
 ### jQuery 속성 제어 API
 ### jQuery 조회 범위 제한
 ## Node 객체
@@ -710,3 +1088,4 @@ jQuery는 DOM을 내부에 감추고 보다 쉽게 웹페이지를 조작할 수
 # 활용
 ## Youtube 재생시간 구하기
 ## Word Counter
+
