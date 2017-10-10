@@ -1055,7 +1055,22 @@ console.log(t.hasAttribute('title')); // false, title 속성의 존재여부를 
 </script>
 ```
 
+setAttribute('class', 'important')와 className = 'important'는 같은 결과를 만든다. 하지만 전자는 attribute 방식(속성이라고 부르겠다)이고 후자는 property 방식이다. property 방식은 좀 더 간편하고 속도도 빠르지만 실제 html 속성의 이름과 다른 이름을 갖는 경우가 있다. 그것은 자바스크립트의 이름 규칙 때문이다.
+
+|||
+|-|-|
+|class|className|
+|readonly|readOnly|
+|rowspan|rowSpan|
+|colspan|colSpan|
+|usemap|userMap|
+|frameborder|frameBorder|
+|for|htmlFor|
+|maxlength|maxLength|
+
 ### jQuery 속성 제어 API
+
+
 ### jQuery 조회 범위 제한
 ## Node 객체
 ### Node 관계 API
