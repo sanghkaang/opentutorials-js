@@ -1070,8 +1070,90 @@ setAttribute('class', 'important')와 className = 'important'는 같은 결과�
 
 ### jQuery 속성 제어 API
 
+#### 속성제어
+
+jQuery 객체의 메소드 중 setAttribute, getAttribute에 대응되는 메소드는 attr이다. 또한 removeAttribute에 대응되는 메소드로는 removeAttr이 있다. 
+
+```html
+<a id="target" href="http://opentutorials.org">opentutorials</a>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+var t = $('#target');
+console.log(t.attr('href')); //http://opentutorials.org
+t.attr('title', 'opentutorials.org'); // title 속성의 값을 설정한다.
+t.removeAttr('title'); // title 속성을 제거한다.
+</script>
+```
+
+#### attribute와 property
+
+DOM과 마찬가지로 jQuery도 속성(attribute)과 프로퍼티를 구분한다. 속성은 attr, 프로퍼티는 prop 메소드를 사용한다.
+
+```html
+<a id="t1" href="./demo.html">opentutorials</a>
+<input id="t2" type="checkbox" checked="checked" />
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+// 현재 문서의 URL이 아래와 같다고 했을 때
+// http://localhost/jQuery_attribute_api/demo2.html
+var t1 = $('#t1');
+console.log(t1.attr('href')); // ./demo.html 
+console.log(t1.prop('href')); // http://localhost/jQuery_attribute_api/demo.html 
+ 
+var t2 = $('#t2');
+console.log(t2.attr('checked')); // checked
+console.log(t2.prop('checked')); // true
+</script>
+```
+
+jQuery를 이용하면 프로퍼티의 이름으로 어떤 것을 사용하건 올바른 것으로 교정해준다. 이런 것이 라이브러리를 사용하는 의의라고 할수 있겠다.
+
+```html
+<div id="t1">opentutorials</div>
+<div id="t2">opentutorials</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+$('#t1').prop('className', 'important'); 
+$('#t2').prop('class', 'current');  
+</script>
+```
 
 ### jQuery 조회 범위 제한
+
+#### selector context
+
+가장 간편한 방법은 조회할 때 조회 범위를 제한하는 것이다. 그 제한된 범위를 jQuery에서는 selector context라고 한다.
+
+```html
+<ul>
+    <li class="marked">html</li>
+    <li>css</li>
+    <li id="active">JavaScript
+        <ul>
+            <li>JavaScript Core</li>
+            <li class="marked">DOM</li>
+            <li class="marked">BOM</li>
+        </ul>
+    </li>
+</ul>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    $( ".marked", "#active").css( "background-color", "red" );
+    // $( "#active .marked").css( "background-color", "red" );
+</script>
+```
+
+#### .find()
+
+find는 jQuery 객체 내에서 엘리먼트를 조회하는 기능을 제공한다. 아래의 코드는 위의 예제와 효과가 같다.
+
+```js
+$( "#active").find('.marked').css( "background-color", "red" );
+$('#active').css('color','blue').find('.marked').css( "background-color", "red" );
+```
+
+> **find를 너무 복잡하게 사용하면 코드를 유지보수하기 어렵게 된다.**
+
 ## Node 객체
 ### Node 관계 API
 ### 노드 종류 API
